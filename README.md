@@ -69,6 +69,8 @@ npm start          # 等价于 python3 -m http.server 8080
 npm test           # node test/maps.test.mjs —— 用合成关键点校验全部 68 组映射
 ```
 
+**发版提醒**：修改 `js/` 下的代码后，需同步更新三处版本标记以穿透浏览器 HTTP 缓存（GitHub Pages 有 10 分钟 max-age）：`index.html` 里 `app.js?v=`、`js/app.js` 顶部 `import './data.js?v='`、`sw.js` 的 `VERSION` 与 `SHELL` 清单。已装用户会在下次打开时自动收到新版本（新 Service Worker 接管后页面自刷一次）。
+
 ## 📁 项目结构
 
 ```

@@ -2,7 +2,7 @@
  * 映射函数自测（Node）：用合成关键点跑全部穴位映射，捕获 NaN / 越界 / 返回空。
  * 运行：npm test
  */
-import { POINTS, faceCtx, handCtx, bodyCtx, toArr } from '../js/data.js';
+import { POINTS, faceCtx, handCtx, bodyCtx, toArr, palmFacing } from '../js/data.js';
 
 /* 合成关键点 */
 function synthFace() {
@@ -20,8 +20,9 @@ function synthFace() {
 }
 function synthHand() {
   const L = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5, z: 0 }));
+  // 右手掌面朝镜头（拇指在画面左侧），与 palmFacing 叉积判定几何一致
   const set = {
-    0: [0.5, 0.85], 1: [0.56, 0.78], 2: [0.62, 0.7], 3: [0.68, 0.6], 4: [0.74, 0.52],
+    0: [0.5, 0.85], 1: [0.42, 0.78], 2: [0.34, 0.7], 3: [0.28, 0.6], 4: [0.24, 0.52],
     5: [0.4, 0.5], 6: [0.39, 0.34], 7: [0.38, 0.26], 8: [0.38, 0.2],
     9: [0.5, 0.48], 10: [0.5, 0.32], 11: [0.5, 0.2],
     13: [0.6, 0.5], 14: [0.61, 0.34], 15: [0.62, 0.2],
@@ -63,5 +64,14 @@ for (const pt of POINTS) {
     });
   }
 }
+// palmFacing 校验：右手掌面朝镜头（拇指在画面左）应判 palm 且置信度高；水平镜像后（几何等于手背朝镜头）应判 dorsal
+{
+  const L = synthHand();
+  const a = palmFacing(L, 'Left');  // label 'Left' = 原始未镜像输入下的解剖右手
+  const b = palmFacing(L.map((p) => ({ ...p, x: 1 - p.x })), 'Left');
+  console.log(`·  palmFacing：掌面 palm=${a.palm} conf=${a.conf.toFixed(2)}；镜像(=手背) palm=${b.palm}`);
+  if (a.conf < 0.12 || !a.palm || b.palm) { console.error('✗  palmFacing 判定错误'); fail++; }
+}
+
 console.log(`\n共检查 ${checked} 组映射，${fail ? `${fail} 处失败 ✗` : '全部通过 ✓'}`);
 process.exit(fail ? 1 : 0);

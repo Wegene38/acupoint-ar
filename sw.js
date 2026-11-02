@@ -5,14 +5,14 @@
  *  - 大文件（AI 模型 .task / WASM 运行时）：缓存优先，首次用到即缓存（约 60MB，装一次永久离线）
  * 版本号变更即整体换缓存。
  */
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.2.0';
 const CACHE = `acupoint-ar-${VERSION}`;
 const SHELL = [
   './',
   './index.html',
   './style.css',
-  './js/app.js',
-  './js/data.js',
+  './js/app.js?v=1.2',
+  './js/data.js?v=1.2',
   './manifest.json',
   './favicon.svg',
   './icons/icon-192.png',

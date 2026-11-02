@@ -75,13 +75,16 @@ export function faceCtx(L) {
   };
 }
 
-/** 判断手掌是否朝向镜头（依据拇指/小指在画面中的相对位置与左右手信息） */
+/**
+ * 判断手掌/手背朝向：腕→食指掌根 与 腕→小指掌根 两个向量的叉积符号。
+ * 与手势旋转角度无关（竖直手掌同样有效），|s|（两向量夹角正弦）即置信度。
+ */
 export function palmFacing(L, label) {
-  const w = dist(L[17], L[2]) || 1e-6;
-  const conf = Math.abs(L[17].x - L[2].x) / w;
+  const e1x = L[5].x - L[0].x, e1y = L[5].y - L[0].y;
+  const e2x = L[17].x - L[0].x, e2y = L[17].y - L[0].y;
+  const s = (e1x * e2y - e1y * e2x) / ((Math.hypot(e1x, e1y) * Math.hypot(e2x, e2y)) || 1e-6);
   const isAnatRight = label === 'Left'; // MediaPipe 以镜像输入为前提，原始前摄画面下左右互换
-  const palm = isAnatRight ? L[17].x - L[2].x < 0 : L[17].x - L[2].x > 0;
-  return { palm, conf };
+  return { palm: isAnatRight ? s > 0 : s < 0, conf: Math.abs(s) };
 }
 
 /** 手部上下文（每只手一个） */
@@ -269,7 +272,7 @@ export const POINTS = [
     effects: '宁心安神、和胃止呕。常用于心悸、失眠、恶心呕吐、晕车。',
     tips: '晕车恶心时重力按揉 2 分钟。⚠️ 孕妇慎重按。',
     map: {
-      hand: (c) => add(c.L[0], mul(unit(sub(c.L[0], mid(c.L[5], c.L[17]))), c.handLen * 0.38)),
+      hand: (c) => add(c.L[0], mul(unit(sub(c.L[0], mid(c.L[5], c.L[17]))), c.handLen * 0.45)),
       body: (c) => c.sides.map((s, i) => (c.vis(i ? 16 : 15) > 0.3 ? lerp(s.wr, s.el, 2 / 12) : null)).filter(Boolean),
     },
   },
@@ -279,8 +282,8 @@ export const POINTS = [
     effects: '养心安神。常用于失眠、健忘、心悸、焦虑。',
     tips: '睡前轻按 1 分钟，助眠名穴。',
     map: {
-      hand: (c) => lerp(c.L[0], c.L[17], 0.35),
-      body: (c) => c.sides.map((s) => lerp(s.wr, s.pk, 0.28)),
+      hand: (c) => lerp(c.L[0], c.L[17], 0.12),
+      body: (c) => c.sides.map((s) => lerp(s.wr, s.pk, 0.1)),
     },
   },
   {
@@ -289,8 +292,8 @@ export const POINTS = [
     effects: '补肺益气、止咳化痰。常用于咳嗽、气喘、咽痛。',
     tips: '轻按即可，避开明显动脉搏动处。',
     map: {
-      hand: (c) => lerp(c.L[0], c.L[2], 0.38),
-      body: (c) => c.sides.map((s) => lerp(s.wr, s.th, 0.25)),
+      hand: (c) => lerp(c.L[0], c.L[2], 0.15),
+      body: (c) => c.sides.map((s) => lerp(s.wr, s.th, 0.1)),
     },
   },
   {
@@ -299,7 +302,7 @@ export const POINTS = [
     effects: '宁心安神、清胃火。常用于心痛、失眠、口臭。',
     tips: '按揉 30 秒至 1 分钟。',
     map: {
-      hand: (c) => lerp(c.L[0], c.L[9], 0.16),
+      hand: (c) => lerp(c.L[0], c.L[9], 0.07),
       body: (c) => c.sides.map((s) => s.wr),
     },
   },
@@ -364,7 +367,7 @@ export const POINTS = [
     location: '手内侧，第 5 掌指关节尺侧近端赤白肉际凹陷处（握拳时掌横纹尺侧端）。',
     effects: '舒经活络、清心安神。常用于颈肩僵硬、腰痛、盗汗。',
     tips: '低头族按此穴 + 活动颈部，每次 1~2 分钟。',
-    map: { hand: (c) => add(lerp(c.L[17], c.L[0], 0.18), mul(unit(sub(c.L[17], c.L[13])), dist(c.L[17], c.L[13]) * 0.22)) },
+    map: { hand: (c) => add(lerp(c.L[17], c.L[0], 0.1), mul(unit(sub(c.L[17], c.L[5])), dist(c.L[17], c.L[5]) * 0.1)) },
   },
   {
     id: 'li3', code: 'LI3', name: '三间', pinyin: 'Sān Jiān', meridian: 'LI', regions: ['hand'], surface: 'dorsal',
@@ -385,28 +388,28 @@ export const POINTS = [
     location: '腕背横纹桡侧，拇指上翘时"鼻烟窝"凹陷中。',
     effects: '清热散风。常用于手腕痛（腱鞘炎）、头痛、耳鸣。',
     tips: '鼠标手可常按。',
-    map: { hand: (c) => lerp(c.L[0], c.L[2], 0.42) },
+    map: { hand: (c) => lerp(c.L[0], c.L[2], 0.2) },
   },
   {
     id: 'te4', code: 'TE4', name: '阳池', pinyin: 'Yáng Chí', meridian: 'TE', regions: ['hand'], surface: 'dorsal',
     location: '腕背横纹中，指伸肌腱尺侧缘凹陷中。',
     effects: '清热通络、通调三焦。常用于手腕痛、手足冷。',
     tips: '手脚冰凉者常按。',
-    map: { hand: (c) => lerp(c.L[0], c.L[9], 0.2) },
+    map: { hand: (c) => lerp(c.L[0], c.L[9], 0.13) },
   },
   {
     id: 'si5', code: 'SI5', name: '阳谷', pinyin: 'Yáng Gǔ', meridian: 'SI', regions: ['hand'], surface: 'dorsal',
     location: '腕背横纹尺侧端，尺骨茎突与三角骨之间凹陷中。',
     effects: '清热安神。常用于手腕痛、颈颔肿、耳鸣。',
     tips: '轻按 30 秒。',
-    map: { hand: (c) => lerp(c.L[0], c.L[17], 0.38) },
+    map: { hand: (c) => lerp(c.L[0], c.L[17], 0.15) },
   },
   {
     id: 'si4', code: 'SI4', name: '腕骨', pinyin: 'Wàn Gǔ', meridian: 'SI', regions: ['hand'], surface: 'dorsal',
     location: '手背尺侧，第 5 掌骨基底与钩骨之间赤白肉际凹陷中。',
     effects: '祛湿退黄。常用于腕痛指挛、黄疸、消渴。',
     tips: '轻按 30 秒。',
-    map: { hand: (c) => lerp(c.L[17], c.L[0], 0.38) },
+    map: { hand: (c) => lerp(c.L[0], c.L[17], 0.24) },
   },
   {
     id: 'te5', code: 'TE5', name: '外关', pinyin: 'Wài Guān', meridian: 'TE', regions: ['hand', 'body'], surface: 'dorsal', key: true,
@@ -414,7 +417,7 @@ export const POINTS = [
     effects: '疏风清热、通经活络。常用于热病、偏头痛、耳鸣、肩颈痛。',
     tips: '按揉 1~2 分钟，微酸为度。',
     map: {
-      hand: (c) => add(add(c.L[0], mul(unit(sub(c.L[0], mid(c.L[5], c.L[17]))), c.handLen * 0.38)), mul(unit(sub(c.L[17], c.L[5])), c.handLen * 0.12)),
+      hand: (c) => add(add(c.L[0], mul(unit(sub(c.L[0], mid(c.L[5], c.L[17]))), c.handLen * 0.45)), mul(unit(sub(c.L[17], c.L[5])), c.handLen * 0.12)),
       body: (c) => c.sides.map((s) => { const fa = dist(s.wr, s.el); return add(lerp(s.wr, s.el, 2 / 12), mul(armOut(c, s), (fa * 0.5) / 12)); }),
     },
   },

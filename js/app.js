@@ -6,7 +6,7 @@
 import {
   POINTS, REGIONS, MERIDIANS, surfaceOK, toArr,
   faceCtx, handCtx, bodyCtx, dist,
-} from './data.js';
+} from './data.js?v=1.2';
 import {
   FilesetResolver, FaceLandmarker, HandLandmarker, PoseLandmarker,
 } from '../vendor/mediapipe/vision_bundle.mjs';
@@ -35,6 +35,7 @@ const state = {
   mirror: true,
   showNames: 'key',             // all | key | none
   handSurface: 'auto',          // auto | palm | dorsal | all
+  showSkeleton: false,          // 调试：显示 AI 关键点
   selectedId: null,
   detected: false,              // 当前帧是否识别到部位
   models: {},                   // face/hand/body -> landmarker
@@ -212,8 +213,24 @@ function render() {
   state.detected = state.mode === 'hand' ? state.det.hands.length > 0 : !!((state.mode === 'face' ? state.det.face : state.det.body));
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (state.showSkeleton) drawSkeleton();
   drawPoints(pts);
   if (frameCount % 20 === 0) updateStatusAndHint();
+}
+
+/** 调试：绘制 AI 检测到的原始关键点（用于核对叠加是否与画面同步） */
+function drawSkeleton() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,.65)';
+  const dot = (p) => { const s = tx(p.x, p.y); ctx.beginPath(); ctx.arc(s.x, s.y, 1.8, 0, Math.PI * 2); ctx.fill(); };
+  if (state.mode === 'face' && state.det.face) {
+    for (let i = 0; i < state.det.face.length; i += 2) dot(state.det.face[i]);
+  } else if (state.mode === 'hand') {
+    state.det.hands.forEach((h) => h.lms.forEach(dot));
+  } else if (state.mode === 'body' && state.det.body) {
+    state.det.body.forEach((p) => { if ((p.visibility ?? 1) > 0.5) dot(p); });
+  }
+  ctx.restore();
 }
 
 function drawPoints(pts) {
@@ -433,6 +450,8 @@ $('#mirrorToggle').onchange = (e) => {
   state.mirror = e.target.checked;
   document.body.classList.toggle('mirror', state.mirror);
 };
+$('#skeletonToggle').checked = state.showSkeleton;
+$('#skeletonToggle').onchange = (e) => { state.showSkeleton = e.target.checked; };
 
 /* ---------------- 拍照 ---------------- */
 $('#shutter').onclick = () => {
@@ -523,8 +542,14 @@ installBtns.forEach((b) => {
 });
 if (isStandalone) showToast('正在以 App 模式运行 ✓');
 
-// 注册 Service Worker（离线缓存 App 壳与 AI 模型）
+// 注册 Service Worker（离线缓存 App 壳与 AI 模型）；新版本接管后自动刷新一次
 if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!sessionStorage.getItem('sw-reloaded')) {
+      sessionStorage.setItem('sw-reloaded', '1');
+      location.reload();
+    }
+  });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('SW 注册失败', e));
   });

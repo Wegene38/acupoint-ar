@@ -94,6 +94,10 @@
         <span>安装到手机桌面<br /><i class="row-sub">安装后可离线使用</i></span>
         <button id="settingsInstall" class="chip hidden">安装</button>
       </div>
+      <label class="row">
+        <span>显示AI关键点<br /><i class="row-sub">调试：核对穴位与画面对齐</i></span>
+        <input id="skeletonToggle" type="checkbox" />
+      </label>
       <div class="about">
         <p><b>关于寻穴</b>：开源网页版实时取穴工具，基于 MediaPipe 端侧 AI 关键点与中医骨度分寸法构建，无需安装、无需联网使用模型。</p>
         <p><b>隐私</b>：摄像头画面仅在本设备内存中实时处理，不经过任何服务器，不存储不上传。</p>
@@ -103,6 +107,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=1.2"></script>
 </body>
 </html>
