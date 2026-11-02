@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>寻穴 AcuPoint AR · 摄像头实时找穴</title>
+  <meta name="description" content="打开摄像头，屏幕实时标出穴位名称与位置。零安装、纯本地处理、不上传画面。仅供学习参考。" />
+  <meta name="theme-color" content="#0d1512" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="mode-hand">
+
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="brand"><span class="logo"></span>寻穴 <i>AcuPoint AR</i></div>
+    <div id="status" class="status">待启动</div>
+    <button id="btnSettings" class="icon-btn" aria-label="设置">⚙</button>
+  </header>
+
+  <!-- 取景区 -->
+  <main id="stage">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+
+    <!-- 启动门 -->
+    <div id="startGate" class="gate">
+      <div class="logo-big"></div>
+      <h1>寻穴 <i>AcuPoint AR</i></h1>
+      <p class="slogan">把镜头对准自己，穴位直接标在你身上</p>
+      <ul class="feat">
+        <li>🙂 面部 17 穴 · ✋ 手部 22 穴 · 🧍 全身 25 穴</li>
+        <li>实时叠加 · 点哪讲哪 · 一键拍照标注</li>
+        <li>画面纯本地 AI 处理，<b>不上传任何影像</b></li>
+      </ul>
+      <button id="btnStart">启动相机</button>
+      <p id="gateError" class="gate-error hidden"></p>
+      <p class="fine">使用即表示你已阅读并同意：定位结果按中医骨度分寸法估算，仅供学习参考，不构成医疗建议。</p>
+    </div>
+
+    <div id="hint" class="hint hidden"></div>
+    <div id="toast" class="toast"></div>
+    <div id="flash" class="flash hidden"></div>
+    <div id="card" class="card hidden"></div>
+
+    <button id="shutter" title="拍照保存标注截图">📷</button>
+  </main>
+
+  <!-- 穴位库面板 -->
+  <section id="panel" class="panel open">
+    <div class="panel-bar">
+      <button id="panelToggle" class="panel-toggle">穴位库 <b>▲</b></button>
+    </div>
+    <div class="modes" id="modes">
+      <button data-mode="face">🙂 面部</button>
+      <button data-mode="hand">✋ 手部</button>
+      <button data-mode="body">🧍 全身</button>
+    </div>
+    <div class="chips">
+      <span class="chip-label">名称</span>
+      <button class="chip" data-names="key">关键</button>
+      <button class="chip" data-names="all">全部</button>
+      <button class="chip" data-names="none">隐藏</button>
+      <span class="chip-label hand-only">掌背</span>
+      <button class="chip hand-only" data-surface="auto">自动</button>
+      <button class="chip hand-only" data-surface="palm">掌面</button>
+      <button class="chip hand-only" data-surface="dorsal">手背</button>
+      <button class="chip hand-only" data-surface="all">全部</button>
+    </div>
+    <div class="search">
+      <input id="search" type="search" placeholder="搜索穴位 / 功效（如：失眠、头痛、胃痛）" />
+    </div>
+    <div id="list" class="list"></div>
+    <p class="disclaimer">⚠️ 本工具仅供健康学习参考，不能替代专业医疗建议。</p>
+  </section>
+
+  <!-- 设置弹层 -->
+  <div id="settings" class="sheet-wrap hidden">
+    <div class="sheet">
+      <div class="sheet-head"><h3>设置</h3><button id="settingsClose">✕</button></div>
+      <label class="row">
+        <span>镜像画面（自拍视角）</span>
+        <input id="mirrorToggle" type="checkbox" checked />
+      </label>
+      <div class="about">
+        <p><b>关于寻穴</b>：开源网页版实时取穴工具，基于 MediaPipe 端侧 AI 关键点与中医骨度分寸法构建，无需安装、无需联网使用模型。</p>
+        <p><b>隐私</b>：摄像头画面仅在本设备内存中实时处理，不经过任何服务器，不存储不上传。</p>
+        <p><b>数据参考</b>：穴位定位与主治内容参考国家标准《经穴名称与定位》（GB/T 12346）与通用经络学教材整理。</p>
+        <p class="fine">免责声明：本应用所有内容仅供学习与健康参考，不能替代执业医师的诊断与治疗。如有身体不适，请及时就医。</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

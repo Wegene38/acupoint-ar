@@ -1,0 +1,12 @@
+{
+  "name": "acupoint-ar",
+  "private": true,
+  "version": "1.0.0",
+  "description": "寻穴 AcuPoint AR —— 摄像头实时找穴网页应用（MediaPipe 端侧 AI + 骨度分寸法）",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node test/maps.test.mjs"
+  },
+  "license": "MIT"
+}
