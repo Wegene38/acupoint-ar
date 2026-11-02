@@ -2,12 +2,15 @@
   "name": "寻穴 AcuPoint AR",
   "short_name": "寻穴",
   "description": "摄像头实时找穴：把镜头对准自己，穴位直接标在身上。画面纯本地处理。",
-  "start_url": "./",
+  "start_url": "./?source=pwa",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0c1310",
   "theme_color": "#0d1512",
   "lang": "zh-CN",
   "icons": [
-    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

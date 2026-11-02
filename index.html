@@ -8,6 +8,11 @@
   <meta name="theme-color" content="#0d1512" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="寻穴" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="mode-hand">
@@ -35,6 +40,8 @@
         <li>画面纯本地 AI 处理，<b>不上传任何影像</b></li>
       </ul>
       <button id="btnStart">启动相机</button>
+      <button id="gateInstall" class="btn-install hidden">📲 安装到手机桌面</button>
+      <p id="iosTip" class="ios-tip hidden">iPhone：点底部「分享 <b>⬆︎</b>」→「添加到主屏幕」，即可像 App 一样使用</p>
       <p id="gateError" class="gate-error hidden"></p>
       <p class="fine">使用即表示你已阅读并同意：定位结果按中医骨度分寸法估算，仅供学习参考，不构成医疗建议。</p>
     </div>
@@ -83,6 +90,10 @@
         <span>镜像画面（自拍视角）</span>
         <input id="mirrorToggle" type="checkbox" checked />
       </label>
+      <div class="row">
+        <span>安装到手机桌面<br /><i class="row-sub">安装后可离线使用</i></span>
+        <button id="settingsInstall" class="chip hidden">安装</button>
+      </div>
       <div class="about">
         <p><b>关于寻穴</b>：开源网页版实时取穴工具，基于 MediaPipe 端侧 AI 关键点与中医骨度分寸法构建，无需安装、无需联网使用模型。</p>
         <p><b>隐私</b>：摄像头画面仅在本设备内存中实时处理，不经过任何服务器，不存储不上传。</p>

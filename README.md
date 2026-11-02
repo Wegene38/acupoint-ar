@@ -19,7 +19,8 @@
 | 📸 **拍照标注** | 一键合成"画面 + 穴位标注"截图并保存，可作学习笔记 |
 | 🎨 **经络配色** | 每条经络独立配色（肺经金、心包紫、任脉粉……），圆点颜色即经络 |
 | 🔒 **隐私优先** | 画面只在设备本地推理，**不经任何服务器、不存储不上传** |
-| 🚫 **零安装** | 纯静态网页，浏览器/微信打开即用；模型全部自托管，无第三方 CDN 依赖 |
+| 📲 **可安装 PWA** | 添加到手机桌面，全屏运行、**离线可用**（自动缓存 App 壳与 AI 模型） |
+| 🚫 **零门槛** | 纯静态网页，浏览器/微信打开即用；模型全部自托管，无第三方 CDN 依赖 |
 
 ## 🧭 技术原理
 
@@ -43,6 +44,16 @@
 
 **线上使用**：直接访问 [GitHub Pages 地址](https://wegene38.github.io/acupoint-ar/)（需允许相机权限，首次加载约 20MB 模型后会缓存）。
 
+**安装到手机（当 App 用，支持离线）**：
+
+| 平台 | 方法 |
+|---|---|
+| Android / Chrome、Edge | 打开线上地址 → 页面内点「📲 安装到手机桌面」按钮，或浏览器菜单「安装应用 / 添加到主屏幕」 |
+| iPhone / Safari | 打开线上地址 → 底部「分享 ⬆︎」→「添加到主屏幕」（页面会自动显示引导提示） |
+| 桌面 Chrome/Edge | 地址栏右侧安装图标 |
+
+安装后从桌面图标启动即为全屏独立 App；首次联网使用一次后，AI 模型与应用全部缓存，之后**无网也能打开**。
+
 **本地运行**（相机 API 要求 `localhost` 或 HTTPS）：
 
 ```bash
@@ -64,11 +75,15 @@ npm test           # node test/maps.test.mjs —— 用合成关键点校验全�
 acupoint-ar/
 ├── index.html            # 页面结构
 ├── style.css             # 移动优先样式（暗色玉青主题）
+├── sw.js                 # Service Worker（离线缓存：壳网络优先 / 模型缓存优先）
+├── manifest.json         # PWA 清单（standalone + maskable 图标）
+├── icons/                # 应用图标（192/512/maskable/apple-touch）
 ├── js/
 │   ├── data.js           # ⭐ 穴位数据库 + 骨度分寸映射算法（可扩展）
-│   └── app.js            # 相机/检测/渲染/交互/拍照
+│   └── app.js            # 相机/检测/渲染/交互/拍照/安装引导
 ├── models/               # 自托管 MediaPipe 模型（face/hand/pose，共 17MB）
 ├── vendor/mediapipe/     # 自托管 tasks-vision 运行时 + WASM
+├── tools/make-icons.py   # 图标生成脚本
 ├── test/maps.test.mjs    # 映射函数回归测试
 └── docs/市场调研报告.md   # 竞品分析与 MVP 定义依据
 ```
@@ -90,9 +105,9 @@ acupoint-ar/
 
 ## 🗺️ Roadmap
 
+- [x] PWA：安装到桌面 + 离线缓存（Service Worker，v1.1）
 - [ ] 耳部穴位模式（耳穴压豆场景）
 - [ ] 经络循行线绘制（同经穴位连线）
-- [ ] PWA 离线缓存（Service Worker）
 - [ ] 中英双语
 - [ ] 用户反馈校准取穴数据
 

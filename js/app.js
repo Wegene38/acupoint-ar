@@ -489,6 +489,48 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) state.lastTs = { face: 0, hand: 0, body: 0 };
 });
 
+/* ---------------- PWA：安装到桌面 + 离线 ---------------- */
+const deferred = { prompt: null };
+const installBtns = [$('#gateInstall'), $('#settingsInstall')].filter(Boolean);
+const iosTipEl = $('#iosTip');
+const ua = navigator.userAgent;
+const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function refreshInstallUI() {
+  const showBtn = !!deferred.prompt && !isStandalone;
+  installBtns.forEach((b) => b.classList.toggle('hidden', !showBtn));
+  if (iosTipEl) iosTipEl.classList.toggle('hidden', !(isIOS && !isStandalone));
+}
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferred.prompt = e;
+  refreshInstallUI();
+});
+window.addEventListener('appinstalled', () => {
+  deferred.prompt = null;
+  refreshInstallUI();
+  showToast('已添加到桌面 🎉');
+});
+installBtns.forEach((b) => {
+  b.onclick = async () => {
+    if (!deferred.prompt) return;
+    deferred.prompt.prompt();
+    await deferred.prompt.userChoice;
+    deferred.prompt = null;
+    refreshInstallUI();
+  };
+});
+if (isStandalone) showToast('正在以 App 模式运行 ✓');
+
+// 注册 Service Worker（离线缓存 App 壳与 AI 模型）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((e) => console.warn('SW 注册失败', e));
+  });
+}
+refreshInstallUI();
+
 /* ---------------- 启动 ---------------- */
 function init() {
   resize();
